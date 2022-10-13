@@ -6,8 +6,6 @@ import (
 	"vending-machine/domain"
 )
 
-var costValues = []int{5, 10, 20, 50, 100}
-
 type ProductCrudService struct {
 	Repository domain.ProductCrud
 	DBClient   db.InitDBInterface
@@ -34,13 +32,16 @@ func (s *ProductCrudService) GetAllProducts() ([]domain.Product, error) {
 	return products, nil
 }
 
-func (s *ProductCrudService) CreateProduct(p domain.Product) (*domain.Product, error) {
+func (s *ProductCrudService) CreateProduct(p domain.Product, requestUser domain.User) (*domain.Product, error) {
 	if p.Name == "" || p.Cost <= 0 || p.Seller <= 1 && p.Amount < 0 {
 		return nil, errors.New("Invalid product fields")
 	}
 
-	if !containsInt(p.Cost, costValues) {
-		return nil, errors.New("Product cost value must be one of {5,10,20,50,100}")
+	if p.Seller != requestUser.ID {
+		return nil, errors.New("Product's seller cannot be another user")
+	}
+	if p.Cost%5 != 0 {
+		return nil, errors.New("Product cost value must be a multiple of 5}")
 	}
 
 	tx, err := s.DBClient.GetTransaction()

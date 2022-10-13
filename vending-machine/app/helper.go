@@ -2,6 +2,8 @@ package app
 
 import "golang.org/x/crypto/bcrypt"
 
+var costValues = []int{5, 10, 20, 50, 100}
+
 func containsInt(a int, list []int) bool {
 	for _, b := range list {
 		if b == a {

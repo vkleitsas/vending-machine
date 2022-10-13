@@ -77,8 +77,8 @@ func (s *UserCrudService) CreateUser(u domain.User) (*domain.User, error) {
 		return nil, errors.New("User ID must be empty")
 	}
 
-	if !containsInt(u.Deposit, coins) {
-		return nil, errors.New("Deposit value must be one of {5,10,20,50,100}")
+	if !containsInt(u.Deposit, coins) && u.Deposit != 0 {
+		return nil, errors.New("Initial deposit value must be one of {0,5,10,20,50,100}")
 	}
 	tx, err := s.DBClient.GetTransaction()
 	if err != nil {
@@ -137,6 +137,7 @@ func (s *UserCrudService) Deposit(u domain.User, requestUser domain.User) (*doma
 		return nil, err
 	}
 	s.DBClient.Commit(tx)
+	updatedUser.Password = ""
 	return updatedUser, nil
 }
 
@@ -165,5 +166,6 @@ func (s *UserCrudService) Reset(u domain.User, requestUser domain.User) (*domain
 		return nil, err
 	}
 	s.DBClient.Commit(tx)
+	updatedUser.Password = ""
 	return updatedUser, nil
 }

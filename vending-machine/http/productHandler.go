@@ -2,7 +2,9 @@ package http
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"strconv"
 	"vending-machine/app"
 	"vending-machine/domain"
 )
@@ -25,8 +27,9 @@ func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	result, err := h.service.CreateProduct(request)
+	requestUser := r.Context().Value("requestUser").(domain.User)
+	log.Println("p.seller " + strconv.Itoa(request.Seller) + "request user " + strconv.Itoa(requestUser.ID))
+	result, err := h.service.CreateProduct(request, requestUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

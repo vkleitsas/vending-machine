@@ -36,12 +36,14 @@ func (a *AuthorizationMw) BuyerAuthorization(next http.Handler) http.Handler {
 			return
 		}
 
-		if claims.User.Role != "buyer" {
-			http.Error(w, "User role must be buyer", http.StatusUnauthorized)
+		claimsUser := claims.User
+		if claimsUser.Role != "buyer" {
+			http.Error(w, "User role must be seller", http.StatusUnauthorized)
 			return
 		}
-		r = r.WithContext(a.claimsDomain.SetJWTClaimsContext(r.Context(), *claims))
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), "requestUser", claimsUser)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 
 	})
 }
